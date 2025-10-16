@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazy Hosting - ต่ออายุและอัปเกรด</title>
+    <style>
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #2c3e50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Container */
+        .main-content {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 25px;
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        /* Renewal Section (ต่ออายุ Free Tier) */
+        .renewal-box {
+            background-color: #fff3cd; /* สีเตือน */
+            color: #856404;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #ffeeba;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .renewal-box p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .renew-btn {
+            background-color: #f39c12; /* สีส้มสำหรับต่ออายุ */
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .renew-btn:hover {
+            background-color: #e67e22;
+        }
+
+        /* Pricing Grid (อัปเกรด Premium) */
+        .pricing-grid {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .package-card {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 3px solid #ddd;
+        }
+
+        .package-card.highlight {
+            border-color: #2ecc71; /* เน้นแพ็คเกจที่แนะนำ */
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+            background-color: #e8f8f5;
+        }
+
+        .package-card h4 {
+            font-size: 1.8em;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .price small {
+            font-size: 0.5em;
+            font-weight: normal;
+            color: #777;
+        }
+
+        .features-list {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            color: #2ecc71;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upgrade-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .upgrade-btn.green {
+            background-color: #2ecc71;
+        }
+
+        .upgrade-btn.green:hover {
+            background-color: #27ae60;
+        }
+
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">Eazy Hosting 🚀</div>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="account.html">จัดการบัญชี</a>
+        <a href="index.html">Logout</a>
+    </nav>
+</header>
+
+<div class="main-content">
+    <h2>🔄 ต่ออายุและอัปเกรดแผนบริการ</h2>
+
+    <div class="renewal-box">
+        <h3>สถานะ Free Tier Server ของคุณ</h3>
+        <p>เซิร์ฟเวอร์ (103.20.10.150) จะหมดอายุในวันที่ **2025-11-15**</p>
+        <p>คุณสามารถ **ต่ออายุ Free Tier** ได้ฟรีทุก ๆ 30 วันเพื่อใช้งานต่อ</p>
+        <button class="renew-btn">คลิกเพื่อต่ออายุ 30 วัน</button>
+        <small style="display: block; margin-top: 10px; color: #a17f22;">* การต่ออายุจะดำเนินการหลังจากวันที่หมดอายุเท่านั้น</small>
+    </div>
+
+    <h3>เลือกแผน Premium สำหรับทรัพยากรที่มากขึ้น</h3>
+
+    <div class="pricing-grid">
+
+        <div class="package-card">
+            <h4>Standard (S1)</h4>
+            <div class="price">
+                ฿399<small>/เดือน</small>
+            </div>
+            <ul class="features-list">
+                <li>2 Core CPU</li>
+                <li>4 GB RAM</li>
+                <li>50 GB SSD Storage</li>
+                <li>Bandwidth ไม่จำกัด</li>
+            </ul>
+            <button class="upgrade-btn">เลือกแผน Standard</button>
+        </div>
+
+        <div class="package-card highlight">
+            <h4 style="color: #2ecc71;">Pro (P2) - แนะนำ!</h4>
+            <div class="price">
+                ฿799<small>/เดือน</small>
+            </div>
+            <ul class="features-list">
+                <li>4 Core CPU</li>
+                <li>8 GB RAM</li>
+                <li>100 GB SSD Storage</li>
+                <li>Bandwidth ไม่จำกัด</li>
+            </ul>
+            <button class="upgrade-btn green">เลือกแผน Pro</button>
+        </div>
+
+        <div class="package-card">
+            <h4>Business (B4)</h4>
+            <div class="price">
+                ฿1,499<small>/เดือน</small>
+            </div>
+            <ul class="features-list">
+                <li>8 Core CPU</li>
+                <li>16 GB RAM</li>
+                <li>250 GB SSD Storage</li>
+                <li>Bandwidth ไม่จำกัด</li>
+            </ul>
+            <button class="upgrade-btn">เลือกแผน Business</button>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

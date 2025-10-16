@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazy Hosting - สร้างเซิร์ฟเวอร์</title>
+    <style>
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #2c3e50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Container */
+        .main-content {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 25px;
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Resource Summary Box */
+        .resource-box {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        .resource-box h3 {
+            color: #e67e22; /* สีส้มเพื่อเน้นความสำคัญ */
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .resource-list {
+            list-style: none;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .resource-list li {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        /* OS Selection Grid */
+        .os-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .os-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .os-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Radio Button Hack (ซ่อน Radio และใช้ CSS จัดการ) */
+        .os-input {
+            display: none;
+        }
+
+        .os-input:checked + .os-card {
+            border-color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+            background-color: #f0fff0;
+        }
+
+        .os-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .os-card p {
+            font-weight: 600;
+        }
+
+        /* Submit Button */
+        .create-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s;
+        }
+
+        .create-btn:hover {
+            background-color: #27ae60;
+        }
+
+        /* Checkbox Agreement */
+        .agreement-group {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.95em;
+        }
+
+        .agreement-group label {
+            font-weight: normal;
+        }
+
+        .agreement-group a {
+            color: #3498db;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">Eazy Hosting 🚀</div>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="account.html">จัดการบัญชี</a>
+        <a href="index.html">Logout</a>
+    </nav>
+</header>
+
+<div class="main-content">
+    <h2>🚀 สร้างเซิร์ฟเวอร์ Free Tier</h2>
+
+    <div class="resource-box">
+        <h3>ทรัพยากรที่ได้รับ (Free Tier)</h3>
+        <ul class="resource-list">
+            <li>1 Core CPU</li>
+            <li>1 GB RAM</li>
+            <li>10 GB SSD Storage</li>
+            <li>อายุการใช้งาน 30 วัน (ต่ออายุได้)</li>
+        </ul>
+    </div>
+
+    <form action="dashboard.html" method="POST">
+        <div class="form-group">
+            <label>1. เลือกระบบปฏิบัติการ (OS)</label>
+            <div class="os-selection">
+
+                <label>
+                    <input type="radio" name="os_choice" value="Ubuntu 22.04" class="os-input" required checked>
+                    <div class="os-card">
+                        <span class="os-icon">🐧</span>
+                        <p>Ubuntu 22.04 LTS</p>
+                    </div>
+                </label>
+
+                <label>
+                    <input type="radio" name="os_choice" value="CentOS 8" class="os-input" required>
+                    <div class="os-card">
+                        <span class="os-icon" style="color: #e74c3c;">🧱</span>
+                        <p>CentOS 8 Stream</p>
+                    </div>
+                </label>
+
+                <label>
+                    <input type="radio" name="os_choice" value="Debian 12" class="os-input" required>
+                    <div class="os-card">
+                        <span class="os-icon" style="color: #f39c12;">⚙️</span>
+                        <p>Debian 12</p>
+                    </div>
+                </label>
+
+                <label>
+                    <input type="radio" name="os_choice" value="OpenSUSE 15" class="os-input" required>
+                    <div class="os-card">
+                        <span class="os-icon" style="color: #2ecc71;">🦎</span>
+                        <p>OpenSUSE 15</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <hr style="border: 0; height: 1px; background: #ddd; margin: 30px 0;">
+
+        <div class="form-group">
+            <label for="server_name">2. ตั้งชื่อเซิร์ฟเวอร์ (สำหรับเรียกดูใน Dashboard)</label>
+            <input type="text" id="server_name" name="serverName" placeholder="เช่น: My-Web-Project" style="max-width: 400px;" required>
+            <small style="display: block; margin-top: 5px; color: #777;">* ชื่อต้องเป็นภาษาอังกฤษเท่านั้น</small>
+        </div>
+
+        <div class="agreement-group">
+            <input type="checkbox" id="agree" required>
+            <label for="agree">ฉันยอมรับ <a href="#">ข้อตกลงและเงื่อนไขการใช้งาน Free Tier</a></label>
+        </div>
+
+        <button type="submit" class="create-btn">
+            ยืนยันการสร้างเซิร์ฟเวอร์
+        </button>
+
+        <p style="text-align: center; margin-top: 15px; color: #e74c3c;">* การสร้างเซิร์ฟเวอร์อาจใช้เวลา 2-5 นาที</p>
+
+    </form>
+</div>
+
+</body>
+</html>
