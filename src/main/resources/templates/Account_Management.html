@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazy Hosting - จัดการบัญชี</title>
+    <style>
+        /* Base Styles and Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #2c3e50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Container */
+        .main-content {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            min-height: 70vh;
+        }
+
+        /* Sidebar/Navigation Tabs */
+        .sidebar {
+            width: 250px;
+            padding-right: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: #555;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        /* สถานะ Active (จำลองโดยใช้ CSS class) */
+        .nav-link.active {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Content Area */
+        .settings-content {
+            flex-grow: 1;
+            padding-left: 30px;
+        }
+
+        .settings-content h3 {
+            color: #007bff;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"] {
+            width: 100%;
+            max-width: 450px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .save-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .save-btn:hover {
+            background-color: #27ae60;
+        }
+
+        /* Account Status Card */
+        .status-card {
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+            margin-top: 15px;
+        }
+
+        .status-card p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .status-badge.active {
+            background-color: #2ecc71;
+        }
+
+        .status-badge.free {
+            background-color: #f39c12;
+        }
+
+        .delete-account-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .delete-account-btn:hover {
+            background-color: #c0392b;
+        }
+
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">Eazy Hosting 🚀</div>
+    <nav>
+        <a href="#">Dashboard</a>
+        <a href="#" class="active">จัดการบัญชี</a>
+        <a href="#">Logout</a>
+    </nav>
+</header>
+
+<div class="main-content">
+    <div class="sidebar">
+        <h2>การตั้งค่า</h2>
+        <a href="#profile" class="nav-link active">ข้อมูลส่วนตัว</a>
+        <a href="#security" class="nav-link">ความปลอดภัย (รหัสผ่าน)</a>
+        <a href="#status" class="nav-link">สถานะและแผนบริการ</a>
+    </div>
+
+    <div class="settings-content">
+        <div id="profile" class="content-section">
+            <h3>ข้อมูลส่วนตัว</h3>
+            <form>
+                <div class="form-group">
+                    <label for="fname">ชื่อจริง</label>
+                    <input type="text" id="fname" name="firstName" value="กิตติศักดิ์" required>
+                </div>
+                <div class="form-group">
+                    <label for="lname">นามสกุล</label>
+                    <input type="text" id="lname" name="lastName" value="พักวัน" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">อีเมล</label>
+                    <input type="email" id="email" name="email" value="user.free@eazyhosting.com" readonly>
+                    <small style="color:#e74c3c;">* ไม่สามารถแก้ไขอีเมลได้</small>
+                </div>
+                <button type="submit" class="save-btn">บันทึกการเปลี่ยนแปลง</button>
+            </form>
+        </div>
+
+        <hr style="margin: 40px 0; border: 0; height: 1px; background: #ddd;">
+
+        <div id="security" class="content-section">
+            <h3>ความปลอดภัย</h3>
+            <form>
+                <div class="form-group">
+                    <label for="old-pass">รหัสผ่านปัจจุบัน</label>
+                    <input type="password" id="old-pass" name="oldPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-pass">รหัสผ่านใหม่</label>
+                    <input type="password" id="new-pass" name="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-pass">ยืนยันรหัสผ่านใหม่</label>
+                    <input type="password" id="confirm-pass" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="save-btn">เปลี่ยนรหัสผ่าน</button>
+            </form>
+        </div>
+
+        <hr style="margin: 40px 0; border: 0; height: 1px; background: #ddd;">
+
+        <div id="status" class="content-section">
+            <h3>สถานะและแผนบริการ</h3>
+            <div class="status-card">
+                <p><strong>สถานะบัญชี:</strong> <span class="status-badge active">ACTIVE</span></p>
+                <p><strong>แผนบริการปัจจุบัน:</strong> <span class="status-badge free">Free Tier</span></p>
+                <p><strong>วันที่สร้างบัญชี:</strong> 2025-01-10</p>
+                <p><strong>เซิร์ฟเวอร์ฟรีคงเหลือ:</strong> 1 / 1 เครื่อง</p>
+
+                <button class="save-btn" style="background-color: #3498db; margin-top: 15px;">อัปเกรดเป็น Premium</button>
+            </div>
+
+            <h4 style="margin-top: 30px; color: #e74c3c;">⚠️ การลบบัญชี</h4>
+            <p>การลบบัญชีจะทำให้เซิร์ฟเวอร์ทั้งหมดของคุณถูกลบอย่างถาวรและไม่สามารถกู้คืนได้</p>
+            <button class="delete-account-btn">ลบบัญชี Eazy Hosting ถาวร</button>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
