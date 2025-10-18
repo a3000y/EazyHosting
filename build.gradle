@@ -19,10 +19,22 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Spring Boot Starter สำหรับ Web Application
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // 1. Spring Data JPA: จัดการการเชื่อมต่อและ Mapping ฐานข้อมูล (ORM)
+    // ทำให้คุณสามารถใช้ @Entity และ JpaRepository ได้
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // 2. MySQL Connector/J: Driver ที่ทำให้ Java สื่อสารกับฐานข้อมูล MySQL
+    // ใช้ 'runtimeOnly' เพราะ Driver จะถูกใช้เมื่อ Application เริ่มทำงานเท่านั้น
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // ส่วนนี้คือ Dependencies อื่น ๆ ที่มีอยู่แล้ว (เช่น testing)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {

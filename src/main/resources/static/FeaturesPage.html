@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazy Hosting - คุณสมบัติและการเปรียบเทียบ</title>
+    <style>
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #2c3e50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Container */
+        .main-content {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            margin-bottom: 40px;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 15px 10px;
+            vertical-align: middle;
+            font-size: 1em;
+        }
+
+        .comparison-table th {
+            background-color: #ecf0f1;
+            font-weight: 700;
+            color: #2c3e50;
+            width: 25%;
+        }
+
+        /* Header Row Styles */
+        .comparison-table thead th {
+            font-size: 1.2em;
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+            padding: 20px 10px;
+        }
+
+        .comparison-table thead th:first-child {
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* Specific Plan Styles */
+        .free-tier {
+            background-color: #f7f9fc;
+            font-weight: 500;
+        }
+
+        .premium {
+            background-color: #e8f8f5; /* สีเขียวอ่อนสำหรับ Premium */
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        /* Feature Row Styles */
+        .feature-name {
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Check/Cross Icons */
+        .icon-check {
+            color: #2ecc71;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .icon-cross {
+            color: #e74c3c;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* CTA Button */
+        .cta-section {
+            margin-top: 40px;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid #2ecc71;
+        }
+
+        .cta-btn {
+            background-color: #2ecc71;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .cta-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">Eazy Hosting 🚀</div>
+    <nav>
+        <a href="index.html">หน้าหลัก</a>
+        <a href="FeaturesPage.html" class="active">คุณสมบัติ</a>
+        <a href="login.html">เข้าสู่ระบบ</a>
+    </nav>
+</header>
+
+<div class="main-content">
+    <h1>คุณสมบัติและการเปรียบเทียบ</h1>
+    <p class="subtitle">เลือกแผนบริการที่เหมาะสมกับโปรเจกต์ของคุณ ทั้ง Free Tier และ Premium</p>
+
+    <table class="comparison-table">
+        <thead>
+        <tr>
+            <th></th>
+            <th class="free-tier" style="background-color: #f39c12; color: white;">Free Tier</th>
+            <th class="premium" style="background-color: #2ecc71; color: white;">Premium (Standard S1)</th>
+            <th class="premium" style="background-color: #3498db; color: white;">Premium (Pro P2)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="feature-name">ราคาต่อเดือน</td>
+            <td class="free-tier">ฟรี! (ต่ออายุได้)</td>
+            <td class="premium">฿399</td>
+            <td class="premium">฿799</td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">จำนวน CPU Cores</td>
+            <td>1 Core (Shared)</td>
+            <td class="premium">2 Cores (Dedicated)</td>
+            <td class="premium">4 Cores (Dedicated)</td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">ขนาด RAM</td>
+            <td>1 GB</td>
+            <td class="premium">4 GB</td>
+            <td class="premium">8 GB</td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">SSD Storage</td>
+            <td>10 GB</td>
+            <td class="premium">50 GB</td>
+            <td class="premium">100 GB</td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">SLA Uptime Guarantee</td>
+            <td>95% (Best Effort)</td>
+            <td class="premium">99.9%</td>
+            <td class="premium">99.95%</td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">SSH / Root Access</td>
+            <td><span class="icon-check">✓</span></td>
+            <td class="premium"><span class="icon-check">✓</span></td>
+            <td class="premium"><span class="icon-check">✓</span></td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">ระบบ Backup อัตโนมัติ</td>
+            <td><span class="icon-cross">X</span></td>
+            <td class="premium"><span class="icon-check">✓</span> (รายสัปดาห์)</td>
+            <td class="premium"><span class="icon-check">✓</span> (รายวัน)</td>
+        </tr>
+
+        <tr>
+            <td class="feature-name">การสนับสนุนทางเทคนิค</td>
+            <td>ผ่าน Forum/Email (Basic)</td>
+            <td class="premium">Ticket (Priority)</td>
+            <td class="premium">Ticket + Live Chat (24/7)</td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <a href="login.html" class="cta-btn" style="background-color: #f39c12;">สมัครฟรี</a>
+            </td>
+            <td>
+                <a href="upgrade.html" class="cta-btn">เลือกแผน Standard</a>
+            </td>
+            <td>
+                <a href="upgrade.html" class="cta-btn" style="background-color: #3498db;">เลือกแผน Pro</a>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <div class="cta-section">
+        <p style="font-size: 1.2em; color: #2ecc71; font-weight: 600;">เริ่มต้นวันนี้โดยไม่มีค่าใช้จ่าย! อัปเกรดเมื่อธุรกิจของคุณเติบโต</p>
+        <a href="login.html" class="cta-btn" style="margin-top: 15px;">สร้าง Server ฟรี</a>
+    </div>
+</div>
+
+</body>
+</html>

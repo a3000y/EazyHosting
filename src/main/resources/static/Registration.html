@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazy Hosting - สมัครสมาชิกฟรี</title>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // **[FIXED]** ตรวจสอบให้แน่ใจว่าฟอร์มมี id="signupForm" ใน HTML
+            const form = document.getElementById('signupForm');
+
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    // 1. รวบรวมข้อมูลจากฟอร์ม
+                    const formData = {
+                        firstName: document.getElementById('fname').value,
+                        lastName: document.getElementById('lname').value,
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value // ชื่อ field ต้องตรงกับ User Entity
+                    };
+
+                    // [Optional] ตรวจสอบรหัสผ่านตรงกันก่อนส่ง
+                    const confirmPassword = document.getElementById('confirm-password').value;
+                    if (formData.password !== confirmPassword) {
+                        alert('รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
+                        return;
+                    }
+
+                    // 2. ส่ง HTTP POST Request ไปยัง Controller
+                    fetch('/api/v1/auth/Registration.html', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                        .then(async response => {
+                            let responseData = null;
+                            const contentType = response.headers.get("content-type");
+
+                            // 2.1 พยายามอ่าน Response Body (อาจเป็น JSON หรือ Text)
+                            if (contentType && contentType.includes("application/json")) {
+                                // ถ้าเป็น JSON ให้อ่านเป็น JSON
+                                responseData = await response.json().catch(() => null);
+                            } else {
+                                // ถ้าไม่ใช่ JSON (เช่น Back-end ส่งแค่ Text มา) ให้อ่านเป็น Text
+                                responseData = await response.text();
+                            }
+
+                            if (response.ok) {
+                                return responseData; // สำเร็จ (HTTP 2xx)
+                            }
+
+                            // 2.2 จัดการ Error Response (HTTP 4xx หรือ 5xx)
+                            let errorMessage = 'การสมัครสมาชิกไม่สำเร็จ! กรุณาตรวจสอบข้อมูล';
+
+                            // ถ้า responseData เป็น Object และมี Field 'message'
+                            if (typeof responseData === 'object' && responseData !== null && responseData.message) {
+                                errorMessage = responseData.message;
+                            }
+                            // ถ้า responseData เป็น String (มาจาก response.text)
+                            else if (typeof responseData === 'string' && responseData.length > 0) {
+                                errorMessage = responseData;
+                            } else if (response.status === 409) {
+                                errorMessage = 'Email นี้ถูกใช้งานแล้ว (409 Conflict)';
+                            }
+
+                            throw new Error(errorMessage);
+                        })
+                        .then(data => {
+                            // 3. จัดการเมื่อสำเร็จ (HTTP 201)
+                            alert('สมัครสมาชิกสำเร็จแล้ว! ยินดีต้อนรับสู่ Eazy Hosting');
+                            window.location.href = 'login.html';
+                        })
+                        .catch((error) => {
+                            // 4. แสดง Error Message ที่ถูกแปลงแล้ว (ไม่แสดง [object Object] อีกต่อไป)
+                            alert('เกิดข้อผิดพลาด: ' + error.message);
+                            console.error('Error:', error);
+                        });
+                });
+            }
+        });
+    </script>
+
+    <style>
+        /* Base Styles and Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+            /* เพิ่มเพื่อให้ฟอร์มอยู่กลางจอ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Sign Up Container (กล่องฟอร์ม) */
+        .signup-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #2ecc71;
+            font-weight: 500;
+        }
+
+        /* Form Group (ช่องกรอกข้อมูล) */
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #2ecc71;
+            outline: none;
+            box-shadow: 0 0 5px rgba(46, 204, 113, 0.4);
+        }
+
+        /* Sign Up Button */
+        .signup-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .signup-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .signup-btn:active {
+            transform: scale(0.99);
+        }
+
+        /* Links */
+        .links {
+            margin-top: 25px;
+            font-size: 0.95em;
+        }
+
+        .links a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <div class="logo">Eazy Hosting 🚀</div>
+    <h2>สมัครสมาชิกฟรี (Free Tier)</h2>
+    <p style="color: #777; margin-bottom: 20px;">สร้างบัญชีและรับ Free Tier Server ทันที!</p>
+
+    <form id="signupForm" action="#" method="POST">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fname">ชื่อจริง</label>
+                <input type="text" id="fname" name="firstName" placeholder="ชื่อ" required>
+            </div>
+            <div class="form-group">
+                <label for="lname">นามสกุล</label>
+                <input type="text" id="lname" name="lastName" placeholder="นามสกุล" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">อีเมล</label>
+            <input type="email" id="email" name="email" placeholder="email@example.com (ใช้สำหรับล็อกอิน)" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">รหัสผ่าน</label>
+            <input type="password" id="password" name="password" placeholder="ตั้งรหัสผ่าน" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm-password">ยืนยันรหัสผ่าน</label>
+            <input type="password" id="confirm-password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านอีกครั้ง" required>
+        </div>
+
+        <button type="submit" class="signup-btn">
+            สมัครสมาชิกและรับ Server ฟรี!
+        </button>
+    </form>
+
+    <div class="links">
+        มีบัญชีอยู่แล้ว? <a href="login.html">เข้าสู่ระบบ</a>
+    </div>
+</div>
+
+</body>
+</html>

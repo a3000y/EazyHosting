@@ -1,4 +1,4 @@
-package controller;
+package com.example.FirstBoot.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    @GetMapping({"/", "/index.html"})
+    @GetMapping({"/", "index.html"}) // <--- แก้ไข "htrml" เป็น "html"
     public String index() {
-        return "index"; // คืนค่าไปยังไฟล์ index.html (ถ้าใช้ Thymeleaf) หรือเรียกใช้ Static File
+        return "index.html";
     }
 
     @GetMapping("/login.html")
@@ -39,5 +39,31 @@ public class ViewController {
     @GetMapping("/PremiumUp.html")
     public String Premium() {
         return "Premium";
+    }
+
+    @GetMapping("/FeaturesPage.html")
+    public String FeaturesPage() {
+        return "FeaturesPage";
+    }
+
+    @GetMapping("/Contact.html")
+    public String Contact() {
+        return "Contact";
+    }
+
+
+    @GetMapping("/ManageServerDetail.html")
+    public String ManageServerDetail() {
+        return "ManageServerDetail";
+    }
+
+    @GetMapping("/Registration.html")
+    public String Registration() {
+        return "Registration";
+    }
+
+    @GetMapping("/ForgotPasswordPage.html")
+    public String ForgotPasswordPage() {
+        return "ForgotPasswordPage";
     }
 }
