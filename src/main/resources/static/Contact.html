@@ -10,7 +10,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -75,15 +75,22 @@
         .contact-details {
             display: flex;
             justify-content: space-around;
+            gap: 20px; /* เพิ่มระยะห่างระหว่างการ์ด */
             margin-bottom: 40px;
         }
 
         .detail-card {
-            flex-basis: 30%;
+            flex-basis: 33%;
             padding: 20px;
             background-color: #ecf0f1;
             border-radius: 8px;
             text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .detail-card h3 {
@@ -161,11 +168,53 @@
             font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, opacity 0.3s;
         }
 
-        .submit-btn:hover {
+        .submit-btn:hover:not(:disabled) {
             background-color: #27ae60;
+        }
+
+        .submit-btn:disabled {
+            background-color: #aed6f1;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Responsive Styles (สำหรับมือถือ) */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 15px 10px;
+            }
+            .navbar nav {
+                margin-top: 10px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .navbar a {
+                margin: 5px 10px;
+            }
+
+            .main-content {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            /* Stack contact cards vertically */
+            .contact-details {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .detail-card {
+                flex-basis: 100%;
+            }
         }
 
     </style>
@@ -176,7 +225,7 @@
     <div class="logo">Eazy Hosting 🚀</div>
     <nav>
         <a href="index.html">หน้าหลัก</a>
-        <a href="features.html">คุณสมบัติ</a>
+        <a href="FeaturesPage.html">คุณสมบัติ</a>
         <a href="#" class="active">ติดต่อ</a>
         <a href="login.html">เข้าสู่ระบบ</a>
     </nav>
@@ -210,7 +259,7 @@
 
     <div class="contact-form">
         <h2>ส่งข้อความหาเรา</h2>
-        <form action="#" method="POST">
+        <form id="contactForm">
             <div class="form-group">
                 <label for="name">ชื่อ-นามสกุล</label>
                 <input type="text" id="name" name="name" placeholder="กรุณาระบุชื่อของคุณ" required>
@@ -235,8 +284,56 @@
                 ส่งข้อความ
             </button>
         </form>
+        <!-- Message container for JS feedback -->
+        <div id="form-message" style="margin-top: 20px;"></div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('contactForm');
+        const submitBtn = document.querySelector('.submit-btn');
+        const messageContainer = document.getElementById('form-message');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // หยุดการส่งฟอร์มแบบดั้งเดิม
+
+            // 1. แสดงสถานะกำลังโหลด
+            messageContainer.innerHTML = `
+                <div style="background-color: #e8f7ee; color: #3498db; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #3498db; font-weight: bold;">
+                    กำลังส่งข้อความ... โปรดรอสักครู่
+                </div>
+            `;
+            submitBtn.disabled = true;
+
+            // 2. จำลองการส่งข้อมูลแบบ asynchronous (แทนการเรียก API จริง)
+            setTimeout(() => {
+                // ตรวจสอบความถูกต้องเบื้องต้น (เช่น ชื่อต้องไม่ว่าง)
+                const nameInput = document.getElementById('name').value.trim();
+
+                if (nameInput === "") {
+                    messageContainer.innerHTML = `
+                        <div style="background-color: #fcebeb; color: #e74c3c; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e74c3c;">
+                            <strong>❌ ข้อผิดพลาด:</strong> กรุณากรอกชื่อ-นามสกุล
+                        </div>
+                    `;
+                } else {
+                    // 3. แสดงข้อความความสำเร็จ
+                    messageContainer.innerHTML = `
+                        <div style="background-color: #e8f7ee; color: #2ecc71; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #2ecc71;">
+                            <strong>✅ ขอบคุณ!</strong> ข้อความของคุณถูกส่งเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด
+                        </div>
+                    `;
+
+                    // 4. เคลียร์ฟอร์ม
+                    form.reset();
+                }
+
+                submitBtn.disabled = false;
+            }, 2000); // หน่วงเวลา 2 วินาที เพื่อให้เห็นว่ากำลังส่ง
+        });
+    });
+</script>
 
 </body>
 </html>

@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eazy Hosting - สร้างเซิร์ฟเวอร์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Base Styles */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Prompt', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -104,6 +105,22 @@
             font-weight: 600;
             color: #333;
             font-size: 1em;
+        }
+
+        /* Input Field Style */
+        .form-group input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%; /* ทำให้เต็มความกว้าง */
+            max-width: 400px; /* จำกัดความกว้างไม่ให้ใหญ่เกินไป */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
         }
 
         /* OS Selection Grid */
@@ -209,7 +226,7 @@
         </ul>
     </div>
 
-    <form action="dashboard.html" method="POST">
+    <form id="createServerForm">
         <div class="form-group">
             <label>1. เลือกระบบปฏิบัติการ (OS)</label>
             <div class="os-selection">
@@ -252,7 +269,7 @@
 
         <div class="form-group">
             <label for="server_name">2. ตั้งชื่อเซิร์ฟเวอร์ (สำหรับเรียกดูใน Dashboard)</label>
-            <input type="text" id="server_name" name="serverName" placeholder="เช่น: My-Web-Project" style="max-width: 400px;" required>
+            <input type="text" id="server_name" name="serverName" placeholder="เช่น: My-Web-Project" required>
             <small style="display: block; margin-top: 5px; color: #777;">* ชื่อต้องเป็นภาษาอังกฤษเท่านั้น</small>
         </div>
 
@@ -270,5 +287,101 @@
     </form>
 </div>
 
+<script>
+    // **ฟังก์ชันสำหรับอ่านค่า CSRF Token จาก Meta Tag**
+    function getCsrfToken() {
+        const tokenMeta = document.querySelector("meta[name='_csrf']");
+        const headerMeta = document.querySelector("meta[name='_csrf_header']");
+
+        if (tokenMeta && headerMeta) {
+            return {
+                name: headerMeta.content,
+                value: tokenMeta.content
+            };
+        }
+        return null;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('createServerForm'); // อ้างอิงด้วย ID
+        const createBtn = document.querySelector('.create-btn');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // หยุดการส่งฟอร์มแบบดั้งเดิม
+
+            // 1. ตรวจสอบเงื่อนไขข้อตกลง
+            if (!document.getElementById('agree').checked) {
+                alert('โปรดยอมรับข้อตกลงและเงื่อนไขการใช้งาน Free Tier');
+                return;
+            }
+
+            // 2. รวบรวมข้อมูลฟอร์มและแปลงเป็น JSON Object
+            const formData = new FormData(form);
+            const requestData = {};
+
+            // วนลูปผ่าน FormData เพื่อสร้าง Object ที่มี Key/Value ตรงกับ DTO (ServerCreationRequest)
+            for (const [key, value] of formData.entries()) {
+                requestData[key] = value;
+            }
+
+            const csrf = getCsrfToken(); // ดึง CSRF Token
+
+            // ปิดปุ่มและแสดงสถานะกำลังโหลด
+            createBtn.disabled = true;
+            createBtn.textContent = 'กำลังดำเนินการ...';
+            createBtn.style.backgroundColor = '#f39c12';
+
+            const headers = {
+                // *** แก้ไข: กำหนด Content-Type เป็น application/json ***
+                'Content-Type': 'application/json'
+            };
+
+            // 3. เพิ่ม CSRF Token ใน Header
+            if (csrf) {
+                headers[csrf.name] = csrf.value;
+            }
+
+            // 4. ส่งข้อมูลไปยัง Back-end API (Body ต้องเป็น JSON String)
+            fetch('/api/v1/servers/create', {
+                method: 'POST',
+                headers: headers,
+                // *** แก้ไข: แปลง Object เป็น JSON String ***
+                body: JSON.stringify(requestData)
+            })
+                .then(response => {
+                    const contentType = response.headers.get("content-type");
+
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json().then(data => {
+                            if (response.ok) {
+                                return data;
+                            } else {
+                                // โยน Error พร้อม message จาก Server
+                                throw new Error(data.message || 'เกิดข้อผิดพลาดในการสร้างเซิร์ฟเวอร์');
+                            }
+                        });
+                    } else {
+                        // หากไม่ได้ JSON (อาจเป็น 500 Internal Server Error)
+                        throw new Error("API ตอบกลับด้วยรูปแบบที่ไม่ถูกต้อง (คาดหวัง JSON)");
+                    }
+                })
+                .then(data => {
+                    alert(`สำเร็จ! ${data.message}\nIP: ${data.ip_address}\nรหัส: ${data.server_code}`);
+                    // 5. Redirect ไปหน้า Dashboard หลังจากสำเร็จ
+                    window.location.href = 'dashboard.html';
+                })
+                .catch(error => {
+                    // 6. จัดการ Error
+                    alert('ข้อผิดพลาด: ' + error.message);
+                    console.error('Server Creation Error:', error);
+
+                    // คืนค่าปุ่ม
+                    createBtn.disabled = false;
+                    createBtn.textContent = 'ยืนยันการสร้างเซิร์ฟเวอร์';
+                    createBtn.style.backgroundColor = '#2ecc71';
+                });
+        });
+    });
+</script>
 </body>
 </html>

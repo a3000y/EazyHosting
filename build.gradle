@@ -30,11 +30,18 @@ dependencies {
     // 2. MySQL Connector/J: Driver ที่ทำให้ Java สื่อสารกับฐานข้อมูล MySQL
     // ใช้ 'runtimeOnly' เพราะ Driver จะถูกใช้เมื่อ Application เริ่มทำงานเท่านั้น
     runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // *** 1. เพิ่ม Lombok สำหรับการใช้งานหลัก (Compilation) ***
+    compileOnly 'org.projectlombok:lombok'
+
+    // *** 2. เพิ่ม Lombok สำหรับ Annotation Processor (Configuration) ***
+    annotationProcessor 'org.projectlombok:lombok'
     // ส่วนนี้คือ Dependencies อื่น ๆ ที่มีอยู่แล้ว (เช่น testing)
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+
 }
 
 tasks.named('test') {

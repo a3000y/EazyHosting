@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eazy Hosting - Server Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         /* Base Styles */
         * {
@@ -217,6 +218,15 @@
         .action-btn.start {
             background-color: #2ecc71;
         }
+        /* เพิ่มในโค้ด Style ของคุณ */
+        .chart-area {
+            margin-top: 20px;
+        }
+        /* ปรับความสูงสำหรับ canvas */
+        #performanceChart {
+            height: 300px; /* กำหนดความสูงเพื่อให้กราฟแสดงผลได้ดี */
+            max-height: 400px;
+        }
 
     </style>
 </head>
@@ -245,13 +255,13 @@
         </div>
         <div class="card">
             <h3>การใช้ทรัพยากร (CPU)</h3>
-            <div class="progress-label">45% (ของ 1 Core)</div>
+            <p class="progress-label">45% (ของ 1 Core)</p>
             <div class="progress-bar">
                 <div class="progress-fill" style="width: 45%;"></div>
             </div>
 
             <h3>การใช้ RAM</h3>
-            <div class="progress-label">650 MB / 1024 MB</div>
+            <p class="progress-label">650 MB / 1024 MB</p>
             <div class="progress-bar">
                 <div class="progress-fill" style="width: 65%; background-color: #3498db;"></div>
             </div>
@@ -265,6 +275,7 @@
         <thead>
         <tr>
             <th>สถานะ</th>
+            <th>ชื่อเซิร์ฟเวอร์</th>
             <th>IP Address</th>
             <th>ระบบปฏิบัติการ</th>
             <th>ทรัพยากร</th>
@@ -273,32 +284,15 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td><span class="status-running">Running</span></td>
-            <td>103.20.10.150</td>
-            <td>Ubuntu 22.04</td>
-            <td>1C / 1G RAM / 10G SSD</td>
-            <td>2025-11-15</td>
-            <td class="action-group">
-                <a href="ManageServerDetail.html" class="action-btn manage">จัดการ</a>
-                <a href="#" class="action-btn stop">หยุด</a>
-                <a href="#" class="action-btn" style="background-color: #3498db;">รีสตาร์ท</a>
-            </td>
-        </tr>
-        <tr>
-            <td><span class="status-stopped">Stopped</span></td>
-            <td>103.20.10.151</td>
-            <td>CentOS 8</td>
-            <td>1C / 1G RAM / 10G SSD</td>
-            <td>2025-10-20</td>
-            <td class="action-group">
-                <a href="ManageServerDetail.html" class="action-btn manage">จัดการ</a>
-                <a href="#" class="action-btn start">เริ่ม</a>
-                <a href="#" class="action-btn" style="background-color: #3498db;">รีสตาร์ท</a>
-            </td>
-        </tr>
         </tbody>
     </table>
+
+    <hr>
+    <h2>กราฟประสิทธิภาพ Server (SRV-001)</h2>
+    <div class="chart-area" style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <canvas id="performanceChart" height="120"></canvas>
+    </div>
+    <hr>
 
     <div style="padding: 15px; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px; margin-top: 20px;">
         <p>💡 **หมายเหตุ:** บริการ Free Tier มีข้อจำกัดในการใช้งานทรัพยากรและวันหมดอายุที่ชัดเจน หากต้องการทรัพยากรเพิ่ม โปรดพิจารณาอัปเกรด.</p>
@@ -306,5 +300,299 @@
 
 </div>
 
+<script>
+    const SERVER_SUMMARY_URL = '/api/v1/dashboard/servers';
+    const CONTROL_API_BASE = '/api/v1/MockControl';
+    const METRICS_API_BASE = '/api/v1/dashboard/metrics';
+
+    let performanceChart = null;
+
+    // ----------------------------------------------------
+    // 1. ฟังก์ชันสร้าง Badge สถานะ
+    // ----------------------------------------------------
+    function getStatusBadge(status) {
+        if (status === 'Running') {
+            return `<span class="status-running">Running</span>`;
+        }
+        if (status === 'Stopped') {
+            return `<span class="status-stopped">Stopped</span>`;
+        }
+        if (status === 'Provisioning' || status === 'Creating') {
+            return `<span style="color: white; background-color: #3498db; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; font-weight: 600;">${status}</span>`;
+        }
+        return `<span style="color: white; background-color: #f39c12; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; font-weight: 600;">${status}</span>`;
+    }
+
+    // ----------------------------------------------------
+    // 2. ฟังก์ชันสร้างปุ่ม Action (รวมปุ่มลบ)
+    // ----------------------------------------------------
+    function createActionButtons(serverId, currentStatus) {
+        let buttons = `<a href="ManageServerDetail.html?id=${serverId}" class="action-btn manage">จัดการ</a>`;
+
+        // ปุ่ม Start/Stop
+        if (currentStatus === 'Running') {
+            buttons += `<a href="#" class="action-btn stop" data-action="stop" data-id="${serverId}" style="background-color: #e74c3c;">หยุด</a>`;
+        } else if (currentStatus === 'Stopped' || currentStatus === 'Provisioning' || currentStatus === 'Creating') {
+            buttons += `<a href="#" class="action-btn start" data-action="start" data-id="${serverId}" style="background-color: #2ecc71;">เริ่ม</a>`;
+        } else {
+            buttons += `<a href="#" class="action-btn" style="background-color: #7f8c8d; cursor: not-allowed;">รอ</a>`;
+        }
+
+        buttons += `<a href="#" class="action-btn" data-action="restart" data-id="${serverId}" style="background-color: #3498db;">รีสตาร์ท</a>`;
+
+        // *** เพิ่มปุ่มลบ (Delete) ***
+        buttons += `<a href="#" class="action-btn delete-btn" data-action="delete" data-id="${serverId}" style="background-color: #9b59b6;">ลบ</a>`; // สีม่วง
+
+        return `<div class="action-group">${buttons}</div>`;
+    }
+
+    // ----------------------------------------------------
+    // 3. ฟังก์ชันดึงและแสดงรายการเซิร์ฟเวอร์และภาพรวม (รวมการจำกัด)
+    // ----------------------------------------------------
+    function fetchAndRenderServers() {
+        const tbody = document.querySelector('.server-table tbody');
+        const card1 = document.querySelector('.summary-cards .card:first-child');
+        const createBtn = card1.querySelector('.primary-btn');
+
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">กำลังโหลดข้อมูลเซิร์ฟเวอร์...</td></tr>';
+        createBtn.textContent = 'กำลังโหลด...';
+
+        fetch(SERVER_SUMMARY_URL)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('ไม่สามารถเชื่อมต่อ API ได้ หรือไม่ได้ล็อกอิน');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const servers = data.servers;
+                const freeTierServers = servers.filter(s => s.tier === 'FREE'); // Filter By Tier (Assuming Backend sends 'FREE' tier)
+                const freeTierLimit = 1; // *** การจำกัดการสร้าง Server ***
+
+                // *** อัปเดต Summary Cards ***
+                const runningCount = servers.filter(s => s.status === 'Running').length;
+
+                // Card 1: Server Count & Create Button
+                card1.querySelector('.value').textContent = `${runningCount} / ${freeTierLimit} เครื่อง`;
+
+                if (freeTierServers.length >= freeTierLimit) {
+                    createBtn.textContent = 'โควต้า Free Tier เต็ม';
+                    createBtn.style.backgroundColor = '#7f8c8d'; // สีเทา
+                    createBtn.style.pointerEvents = 'none';
+                    createBtn.href = '#';
+                } else {
+                    createBtn.textContent = '+ สร้างเซิร์ฟเวอร์ใหม่';
+                    createBtn.style.backgroundColor = '#2ecc71';
+                    createBtn.style.pointerEvents = 'auto';
+                    createBtn.href = 'CreateServer.html';
+                }
+
+                // Card 2: Expiration Days
+                const expirationValueElement = document.querySelector('.summary-cards .card:nth-child(2) .value');
+                expirationValueElement.textContent = `เหลือ ${data.expirationDays} วัน`;
+                expirationValueElement.style.color = data.expirationDays <= 7 ? '#e74c3c' : '#2c3e50';
+
+                tbody.innerHTML = '';
+
+                if (servers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">คุณยังไม่มีเซิร์ฟเวอร์</td></tr>';
+                    if (performanceChart instanceof Chart) performanceChart.destroy();
+                    document.getElementById('performanceChart').parentElement.innerHTML = '<p style="text-align: center; color: #777;">ไม่มีเซิร์ฟเวอร์ให้แสดงประสิทธิภาพ</p>';
+                    return;
+                }
+
+                // ดึง metrics สำหรับกราฟของเซิร์ฟเวอร์ตัวแรก
+                fetchAndRenderMetrics(servers[0].code); // ใช้ Server Code ในการดึง Metrics
+
+                // เติมข้อมูลลงตาราง
+                servers.forEach(server => {
+                    const row = tbody.insertRow();
+                    row.insertCell().innerHTML = getStatusBadge(server.status);
+
+                    row.insertCell().textContent = server.name;
+                    row.insertCell().textContent = server.ipAddress;
+
+                    row.insertCell().textContent = server.os;
+                    row.insertCell().textContent = server.resources;
+                    row.insertCell().textContent = server.expiresAt;
+                    row.insertCell().innerHTML = createActionButtons(server.id, server.status);
+                });
+
+                // เพิ่ม Listener ให้กับปุ่มควบคุมและปุ่มลบ
+                addControlListeners();
+            })
+            .catch(error => {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">ข้อผิดพลาดในการดึงข้อมูล: ${error.message}</td></tr>`;
+                createBtn.textContent = 'สร้างเซิร์ฟเวอร์ใหม่';
+                createBtn.style.backgroundColor = '#2ecc71';
+                console.error('Error fetching servers:', error);
+            });
+    }
+
+    // ----------------------------------------------------
+    // 4. ฟังก์ชันดึงและแสดง Metrics/กราฟ (รวมการแสดง RAM Mock-up)
+    // ----------------------------------------------------
+    function fetchAndRenderMetrics(serverCode) {
+        const API_URL = `${METRICS_API_BASE}/${serverCode}`;
+        const ctx = document.getElementById('performanceChart');
+
+        if (!ctx) return;
+
+        document.querySelector('h2:last-of-type').textContent = `กราฟประสิทธิภาพ Server (${serverCode})`;
+
+        fetch(API_URL)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // **อัปเดตค่าปัจจุบันใน Summary Card (CPU & RAM) ตาม Mock-up**
+                const card3 = document.querySelector('.summary-cards .card:nth-child(3)');
+
+                // CPU Elements
+                const cpuLoadLabel = card3.querySelector('.progress-label:nth-of-type(1)');
+                const cpuFill = cpuLoadLabel.nextElementSibling.querySelector('.progress-fill');
+
+                // RAM Elements
+                const ramLoadLabel = card3.querySelector('.progress-label:nth-of-type(2)');
+                const ramFill = ramLoadLabel.nextElementSibling.querySelector('.progress-fill');
+
+                // อัปเดต CPU
+                cpuLoadLabel.textContent = `${data.currentCpuPct}% (ของ ${data.cpuCores || 1} Core)`;
+                if (cpuFill) cpuFill.style.width = `${data.currentCpuPct}%`;
+
+                // *** อัปเดต RAM ตามข้อมูล Mock-up ***
+                if (ramLoadLabel && ramFill) {
+                    ramLoadLabel.textContent = `${data.currentRamMB} MB / ${data.ramCapMB} MB`;
+                    ramFill.style.width = `${data.currentRamPct}%`;
+                    ramFill.style.backgroundColor = '#3498db';
+                }
+
+                // **วาดกราฟ Chart.js**
+                if (performanceChart instanceof Chart) {
+                    performanceChart.destroy();
+                }
+
+                performanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'CPU Usage (%)',
+                            data: data.cpuUsage,
+                            borderColor: '#e67e22',
+                            backgroundColor: 'rgba(230, 126, 34, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }, {
+                            label: 'Memory Usage (%)',
+                            data: data.memoryUsage,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { min: 0, max: 100, title: { display: true, text: 'Usage (%)' } }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching metrics:', error);
+                if (performanceChart instanceof Chart) {
+                    performanceChart.destroy();
+                }
+                document.querySelector('h2:last-of-type').textContent = `กราฟประสิทธิภาพ Server (N/A)`;
+                document.getElementById('performanceChart').parentElement.innerHTML = '<p style="text-align: center; color: #777;">ไม่สามารถโหลดข้อมูลประสิทธิภาพสำหรับเซิร์ฟเวอร์ ' + serverCode + ' ได้</p>';
+            });
+    }
+
+    // ----------------------------------------------------
+    // 5. ฟังก์ชันจัดการการควบคุม (Start/Stop/Restart)
+    // ----------------------------------------------------
+    function addControlListeners() {
+        document.querySelectorAll('.action-group a[data-action]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const serverId = this.getAttribute('data-id');
+                const action = this.getAttribute('data-action');
+
+                if (action === 'delete') {
+                    handleServerDeletion(serverId); // แยกไปเรียกฟังก์ชันลบ
+                    return;
+                }
+
+                if (!confirm(`คุณแน่ใจหรือไม่ที่จะ ${action === 'start' ? 'เริ่ม' : action === 'stop' ? 'หยุด' : 'รีสตาร์ท'} เซิร์ฟเวอร์?`)) {
+                    return;
+                }
+
+                const originalText = this.textContent;
+                this.textContent = '...';
+
+                document.querySelectorAll(`[data-id="${serverId}"]`).forEach(btn => btn.style.pointerEvents = 'none');
+
+                // API: POST /api/v1/control/{serverId}/action?action={action}
+                fetch(`${CONTROL_API_BASE}/${serverId}/action?action=${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`${data.message}`);
+                        fetchAndRenderServers();
+                    })
+                    .catch(error => {
+                        alert(`ข้อผิดพลาดในการควบคุม: ${error.message}`);
+                        console.error('Control Error:', error);
+                        this.textContent = originalText;
+                        document.querySelectorAll(`[data-id="${serverId}"]`).forEach(btn => btn.style.pointerEvents = 'auto');
+                    });
+            });
+        });
+    }
+
+    // ----------------------------------------------------
+    // 6. ฟังก์ชันจัดการการลบ Server
+    // ----------------------------------------------------
+    function handleServerDeletion(serverId) {
+        if (!confirm(`⚠️ คำเตือน: คุณแน่ใจหรือไม่ที่จะลบเซิร์ฟเวอร์ ID: ${serverId} ? การดำเนินการนี้ไม่สามารถย้อนกลับได้!`)) {
+            return;
+        }
+
+        // API: DELETE /api/v1/control/{serverId}
+        fetch(`${CONTROL_API_BASE}/${serverId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(`✅ การลบเซิร์ฟเวอร์สำเร็จ: ${data.message || 'Server Deleted'}`);
+                fetchAndRenderServers(); // รีโหลดข้อมูลตาราง
+            })
+            .catch(error => {
+                alert(`❌ ข้อผิดพลาดในการลบ: ${error.message}`);
+                console.error('Deletion Error:', error);
+            });
+    }
+
+
+    // ----------------------------------------------------
+    // MAIN: เริ่มต้น
+    // ----------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchAndRenderServers();
+    });
+</script>
 </body>
 </html>

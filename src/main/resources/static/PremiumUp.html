@@ -207,12 +207,7 @@
 <div class="main-content">
     <h2>🔄 ต่ออายุและอัปเกรดแผนบริการ</h2>
 
-    <div class="renewal-box">
-        <h3>สถานะ Free Tier Server ของคุณ</h3>
-        <p>เซิร์ฟเวอร์ (103.20.10.150) จะหมดอายุในวันที่ **2025-11-15**</p>
-        <p>คุณสามารถ **ต่ออายุ Free Tier** ได้ฟรีทุก ๆ 30 วันเพื่อใช้งานต่อ</p>
-        <button class="renew-btn">คลิกเพื่อต่ออายุ 30 วัน</button>
-        <small style="display: block; margin-top: 10px; color: #a17f22;">* การต่ออายุจะดำเนินการหลังจากวันที่หมดอายุเท่านั้น</small>
+    <div class="renewal-box" id="renewalBoxContainer"> <h3>กำลังโหลดสถานะ Free Tier Server...</h3>
     </div>
 
     <h3>เลือกแผน Premium สำหรับทรัพยากรที่มากขึ้น</h3>
@@ -230,7 +225,7 @@
                 <li>50 GB SSD Storage</li>
                 <li>Bandwidth ไม่จำกัด</li>
             </ul>
-            <button class="upgrade-btn">เลือกแผน Standard</button>
+            <button class="upgrade-btn" data-package-name="Standard">เลือกแผน Standard</button>
         </div>
 
         <div class="package-card highlight">
@@ -244,7 +239,7 @@
                 <li>100 GB SSD Storage</li>
                 <li>Bandwidth ไม่จำกัด</li>
             </ul>
-            <button class="upgrade-btn green">เลือกแผน Pro</button>
+            <button class="upgrade-btn green" data-package-name="Pro">เลือกแผน Pro</button>
         </div>
 
         <div class="package-card">
@@ -258,12 +253,153 @@
                 <li>250 GB SSD Storage</li>
                 <li>Bandwidth ไม่จำกัด</li>
             </ul>
-            <button class="upgrade-btn">เลือกแผน Business</button>
+            <button class="upgrade-btn" data-package-name="Business">เลือกแผน Business</button>
         </div>
 
     </div>
 
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const API_SERVER_URL = '/api/v1/server';
+        const renewalContainer = document.getElementById('renewalBoxContainer'); // <--- อ้างถึง ID ที่เพิ่มแล้ว
+        const pricingGrid = document.querySelector('.pricing-grid');
+        let serverIdToRenew = null; // ID ของ Free Tier Server
 
+        // แสดง Loading State ในตอนแรก
+        renewalContainer.innerHTML = '<h3>กำลังโหลดสถานะ Free Tier Server...</h3>';
+
+        // ----------------------------------------------------------------------
+        // 1. ฟังก์ชันช่วยเหลือ: แสดงข้อความแจ้งเตือน
+        // ----------------------------------------------------------------------
+        function displayMessage(area, message, isSuccess) {
+            const messageDiv = area.querySelector('#messageArea') || document.createElement('div');
+            messageDiv.id = 'messageArea';
+            messageDiv.style.color = isSuccess ? 'green' : 'red';
+            messageDiv.style.fontWeight = 'bold';
+            messageDiv.textContent = message;
+            area.appendChild(messageDiv);
+            setTimeout(() => {
+                if (messageDiv.parentNode) messageDiv.remove();
+            }, 5000);
+        }
+
+        // ----------------------------------------------------------------------
+        // 2. ดึงสถานะเซิร์ฟเวอร์และแสดงผล (GET /api/v1/server/status-for-renewal)
+        // ----------------------------------------------------------------------
+        function fetchServerStatus() {
+            fetch(`${API_SERVER_URL}/status-for-renewal`)
+                .then(response => {
+                    if (response.status === 401) { window.location.href = '/login.html'; return null; }
+                    if (!response.ok) throw new Error('Failed to fetch status');
+                    return response.json();
+                })
+                .then(data => {
+                    // ตรวจสอบว่า Backend ส่ง Server ID มาหรือไม่
+                    if (data && data.serverId) {
+                        serverIdToRenew = data.serverId; // เก็บ ID ไว้ใช้ต่ออายุ
+
+                        // การจัดการวันที่หมดอายุ
+                        let expiryDateString = data.expiryDate;
+                        if (expiryDateString && expiryDateString.includes('[')) {
+                            // หาก Backend ส่งเป็น JSON Array ของ [ปี, เดือน, วัน, ... ] เช่น 2025-11-15T12:00:00.000000
+                            // เราต้องแปลงให้เป็น format ที่ JavaScript เข้าใจ
+                            expiryDateString = expiryDateString.split('[')[0]; // ตัดส่วนที่เกินออก (ถ้ามี)
+                        }
+                        const expiryDate = new Date(expiryDateString).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                        // สร้าง HTML ใหม่ด้วยข้อมูลจริง
+                        renewalContainer.innerHTML = `
+                            <h3>สถานะ Free Tier Server ของคุณ</h3>
+                            <p>เซิร์ฟเวอร์ <strong>(${data.ipAddress || 'กำลังโหลด IP'})</strong> จะหมดอายุในวันที่ <strong>${expiryDate}</strong></p>
+                            <p>คุณสามารถ **ต่ออายุ Free Tier** ได้ฟรีทุก ๆ 30 วันเพื่อใช้งานต่อ</p>
+                            <button class="renew-btn" id="actualRenewBtn">คลิกเพื่อต่ออายุ 30 วัน</button>
+                            <small style="display: block; margin-top: 10px; color: #a17f22;">* การต่ออายุจะดำเนินการหลังจากวันที่หมดอายุเท่านั้น</small>
+                        `;
+
+                        // ผูก event listener ใหม่ให้กับปุ่มที่สร้างขึ้น
+                        document.getElementById('actualRenewBtn').addEventListener('click', handleRenewal);
+                    } else {
+                        // ไม่พบ Server (Backend ส่ง {"message": "No active Free Tier server found."} หรือ ไม่มี serverId)
+                        renewalContainer.innerHTML = `
+                            <h3>สถานะ Free Tier Server ของคุณ</h3>
+                            <p>ไม่พบเซิร์ฟเวอร์ Free Tier ที่ใช้งานอยู่ หากต้องการสร้างโปรดกลับไปที่ Dashboard</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                    renewalContainer.innerHTML = '<p style="color:red; text-align:center;">ไม่สามารถเชื่อมต่อเพื่อดึงข้อมูลสถานะได้</p>';
+                });
+        }
+
+        // ----------------------------------------------------------------------
+        // 3. จัดการการคลิกปุ่มต่ออายุ (PUT /api/v1/server/{serverId}/action?action=renew)
+        // ----------------------------------------------------------------------
+        function handleRenewal() {
+            if (!serverIdToRenew) {
+                displayMessage(renewalContainer, 'ไม่พบ Server ID สำหรับต่ออายุ', false);
+                return;
+            }
+
+            fetch(`${API_SERVER_URL}/${serverIdToRenew}/action?action=renew`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                .then(result => {
+                    const isSuccess = result.status === 200;
+                    displayMessage(renewalContainer, result.body.message || (isSuccess ? 'ต่ออายุสำเร็จ' : 'ต่ออายุล้มเหลว'), isSuccess);
+                    // โหลดสถานะใหม่หลังจากต่ออายุ
+                    if (isSuccess) setTimeout(fetchServerStatus, 2000);
+                })
+                .catch(error => {
+                    displayMessage(renewalContainer, 'เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อต่ออายุ', false);
+                    console.error('Renewal Error:', error);
+                });
+        }
+
+        // ----------------------------------------------------------------------
+        // 4. จัดการการคลิกปุ่มอัปเกรด (POST /api/v1/server/upgrade)
+        // ----------------------------------------------------------------------
+        pricingGrid.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('upgrade-btn')) return;
+
+            if (!serverIdToRenew) {
+                alert('คุณไม่มีเซิร์ฟเวอร์ Free Tier ที่สามารถอัปเกรดได้ในขณะนี้');
+                return;
+            }
+
+            const card = e.target.closest('.package-card');
+            // ดึงชื่อแพ็กเกจจาก data attribute (หรือใช้ H4 ก็ได้)
+            const packageName = e.target.getAttribute('data-package-name') || card.querySelector('h4').textContent.split(' ')[0];
+
+            if (confirm(`คุณต้องการอัปเกรดเซิร์ฟเวอร์ (ID: ${serverIdToRenew}) เป็นแผน ${packageName} หรือไม่? (กระบวนการจำลองการชำระเงิน)`)) {
+                fetch(`${API_SERVER_URL}/upgrade`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        packageName: packageName,
+                        serverId: serverIdToRenew.toString() // ส่ง ID ของเซิร์ฟเวอร์ที่จะอัปเกรด
+                    })
+                })
+                    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                    .then(result => {
+                        const isSuccess = result.status === 200;
+                        alert(`${isSuccess ? '✅ สำเร็จ' : '❌ ล้มเหลว'}: ${result.body.message || 'ดำเนินการอัปเกรดเสร็จสิ้น'}`);
+                        // โหลดสถานะใหม่หลังจากอัปเกรด
+                        if (isSuccess) fetchServerStatus();
+                    })
+                    .catch(error => {
+                        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเพื่ออัปเกรด');
+                        console.error('Upgrade Error:', error);
+                    });
+            }
+        });
+
+        // เริ่มต้นดึงสถานะเซิร์ฟเวอร์เมื่อโหลดหน้าเว็บ
+        fetchServerStatus();
+    });
+</script>
 </body>
 </html>

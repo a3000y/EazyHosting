@@ -4,49 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eazy Hosting - เข้าสู่ระบบ</title>
+    <link rel="stylesheet">
+</head>
     <style>
-        /* Base Styles and Reset */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        /* --- Global Styles --- */
         body {
-            background-color: #34495e; /* สีพื้นหลังเข้มเหมือน Navbar */
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6; /* สีพื้นหลังอ่อน ๆ */
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
+            justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+            align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+            height: 100vh;
+            margin: 0;
         }
 
-        /* Login Container (กล่องฟอร์ม) */
+        /* --- Login Container (กรอบหลัก) --- */
         .login-container {
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px; /* จำกัดความกว้างของฟอร์ม */
+            max-width: 400px; /* กำหนดความกว้างสูงสุดของกรอบ */
             text-align: center;
         }
 
-        .logo {
-            font-size: 2em;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        h2 {
+        .login-container h1 {
+            color: #333;
             margin-bottom: 25px;
-            color: #3498db;
-            font-weight: 400;
+            font-size: 24px;
+            border-bottom: 2px solid #007bff; /* สีน้ำเงินสำหรับการเน้นหัวข้อ */
+            display: inline-block;
+            padding-bottom: 5px;
         }
 
-        /* Form Group (ช่องกรอกข้อมูล) */
+        /* --- Form Groups (การจัดกลุ่มฟิลด์) --- */
         .form-group {
             margin-bottom: 20px;
             text-align: left;
@@ -55,96 +47,112 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: bold;
             color: #555;
-            font-size: 0.95em;
         }
 
-        .form-group input {
+        .form-group input[type="email"],
+        .form-group input[type="password"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             border-radius: 6px;
-            font-size: 1em;
+            box-sizing: border-box; /* ทำให้ padding ไม่เพิ่มความกว้างของ input */
+            font-size: 16px;
             transition: border-color 0.3s;
         }
 
-        .form-group input:focus {
-            border-color: #3498db;
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus {
+            border-color: #007bff;
             outline: none;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
         }
 
-        /* Login Button */
+        /* --- Button --- */
         .login-btn {
             width: 100%;
             padding: 12px;
-            background-color: #2ecc71; /* สีเขียวสำหรับปุ่มหลัก */
+            background-color: #007bff; /* สีน้ำเงินหลัก */
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 1.1em;
-            font-weight: 600;
+            font-size: 18px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
             margin-top: 10px;
-            transition: background-color 0.3s, transform 0.1s;
+            font-weight: bold;
         }
 
         .login-btn:hover {
-            background-color: #27ae60;
+            background-color: #0056b3; /* สีน้ำเงินเข้มขึ้นเมื่อ Hover */
         }
 
-        .login-btn:active {
-            transform: scale(0.99);
+        /* --- Footer Links --- */
+        .footer-links {
+            margin-top: 25px;
+            font-size: 14px;
         }
 
-        /* Links */
-        .links {
-            margin-top: 20px;
-            font-size: 0.9em;
-        }
-
-        .links a {
-            color: #3498db;
+        .footer-links a {
+            color: #007bff;
             text-decoration: none;
-            margin: 0 10px;
             transition: color 0.3s;
         }
 
-        .links a:hover {
-            color: #2980b9;
+        .footer-links a:hover {
+            color: #0056b3;
             text-decoration: underline;
+        }
+
+        /* --- Message / Error Display --- */
+        #error-message {
+            font-weight: bold;
+            background-color: #ffebeb;
+            padding: 10px;
+            border: 1px solid #ff4d4d;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
 <div class="login-container">
-    <div class="logo">Eazy Hosting 🚀</div>
-    <h2>เข้าสู่ระบบ (Dashboard)</h2>
+    <h1>เข้าสู่ระบบ</h1>
 
-    <form action="#" method="POST">
+    <div id="error-message" style="color: red; margin-bottom: 15px;">
+        <script>
+            // ตรวจสอบว่า URL มีพารามิเตอร์ ?error=true หรือไม่
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                document.write('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
+            }
+        </script>
+    </div>
+
+    <form action="/login" method="POST">
+
         <div class="form-group">
-            <label for="email">อีเมล</label>
-            <input type="email" id="email" name="email" placeholder="example@email.com" required>
+            <label for="username">อีเมล (Username):</label>
+            <input type="email" id="username" name="username" placeholder="email@example.com" required>
         </div>
 
         <div class="form-group">
-            <label for="password">รหัสผ่าน</label>
+            <label for="password">รหัสผ่าน:</label>
             <input type="password" id="password" name="password" placeholder="รหัสผ่านของคุณ" required>
         </div>
 
         <button type="submit" class="login-btn">
-            <a href="dashboard.html"> เข้าสู่ระบบ </a>
-
+            ล็อกอิน
         </button>
-    </form>
 
-    <div class="links">
-        <a href="ForgotPasswordPage.html">ลืมรหัสผ่าน?</a>
-        <span>|</span>
-        <a href="Registration.html">สมัครสมาชิกใหม่</a>
-    </div>
+        <div class="footer-links">
+            <a href="/ForgotPasswordPage.html">ลืมรหัสผ่าน?</a>
+            <span> | </span>
+            <a href="/Registration.html">สร้างบัญชีใหม่</a>
+        </div>
+
+    </form>
 </div>
 
 </body>

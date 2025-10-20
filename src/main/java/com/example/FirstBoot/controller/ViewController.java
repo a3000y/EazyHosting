@@ -7,63 +7,65 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    @GetMapping({"/", "index.html"}) // <--- แก้ไข "htrml" เป็น "html"
-    public String index() {
-        return "index.html";
-    }
 
-    @GetMapping("/login.html")
-    public String login() {
-        return "login"; // คืนค่าไปยังไฟล์ login.html
-    }
 
-    @GetMapping("/dashboard.html")
+
+
+    @GetMapping("/dashboard")
     public String dashboard() {
         return "dashboard"; // คืนค่าไปยังไฟล์ dashboard.html
     }
 
-    @GetMapping("/Account_Management.html")
+    @GetMapping("/Account_Management")
     public String account() {
         return "account"; // คืนค่าไปยังไฟล์ account.html
     }
 
-    @GetMapping("/SignUp.html")
+    @GetMapping("/SignUp")
     public String signup() {
         return "signup";
     }
-    @GetMapping("/CreateServer.html")
+    @GetMapping("/CreateServer")
     public String CreateServer() {
         return "CreateServer";
     }
 
-    @GetMapping("/PremiumUp.html")
+    @GetMapping("/PremiumUp")
     public String Premium() {
         return "Premium";
     }
 
-    @GetMapping("/FeaturesPage.html")
+    @GetMapping("/FeaturesPage")
     public String FeaturesPage() {
         return "FeaturesPage";
     }
 
-    @GetMapping("/Contact.html")
+    @GetMapping("/Contact")
     public String Contact() {
         return "Contact";
     }
 
 
-    @GetMapping("/ManageServerDetail.html")
+    @GetMapping("/ManageServerDetail")
     public String ManageServerDetail() {
         return "ManageServerDetail";
     }
 
-    @GetMapping("/Registration.html")
+    @GetMapping("/Registration")
     public String Registration() {
         return "Registration";
     }
 
-    @GetMapping("/ForgotPasswordPage.html")
+    @GetMapping("/ForgotPasswordPage")
     public String ForgotPasswordPage() {
         return "ForgotPasswordPage";
     }
+
+    // ใน ViewController.java
+    @GetMapping("/admin_dashboard")
+    public String admin_dashboard() {
+        return "admin_dashboard"; // คืนค่าไปยังไฟล์ admin_dashboard.html
+    }
+
+
 }

@@ -147,6 +147,14 @@
             background-color: #27ae60;
         }
 
+        /* Message Area */
+        .message-area {
+            min-height: 20px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+
         /* Account Status Card */
         .status-card {
             padding: 20px;
@@ -200,9 +208,9 @@
 <header class="navbar">
     <div class="logo">Eazy Hosting 🚀</div>
     <nav>
-        <a href="#">Dashboard</a>
-        <a href="#" class="active">จัดการบัญชี</a>
-        <a href="#">Logout</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="account.html" class="active">จัดการบัญชี</a>
+        <a href="/logout">Logout</a>
     </nav>
 </header>
 
@@ -217,33 +225,31 @@
     <div class="settings-content">
         <div id="profile" class="content-section">
             <h3>ข้อมูลส่วนตัว</h3>
-            <form>
-                <div class="form-group">
-                    <label for="fname">ชื่อจริง</label>
-                    <input type="text" id="fname" name="firstName" value="กิตติศักดิ์" required>
-                </div>
+            <form id="profileForm"> <div class="form-group">
+                <label for="fname">ชื่อจริง</label>
+                <input type="text" id="fname" name="firstName" required>
+            </div>
                 <div class="form-group">
                     <label for="lname">นามสกุล</label>
-                    <input type="text" id="lname" name="lastName" value="พักวัน" required>
+                    <input type="text" id="lname" name="lastName" required>
                 </div>
                 <div class="form-group">
                     <label for="email">อีเมล</label>
-                    <input type="email" id="email" name="email" value="user.free@eazyhosting.com" readonly>
+                    <input type="email" id="email" name="email" readonly>
                     <small style="color:#e74c3c;">* ไม่สามารถแก้ไขอีเมลได้</small>
                 </div>
                 <button type="submit" class="save-btn">บันทึกการเปลี่ยนแปลง</button>
-            </form>
+                <div id="profileMessageArea" class="message-area"></div> </form>
         </div>
 
         <hr style="margin: 40px 0; border: 0; height: 1px; background: #ddd;">
 
         <div id="security" class="content-section">
             <h3>ความปลอดภัย</h3>
-            <form>
-                <div class="form-group">
-                    <label for="old-pass">รหัสผ่านปัจจุบัน</label>
-                    <input type="password" id="old-pass" name="oldPassword" required>
-                </div>
+            <form id="passwordForm"> <div class="form-group">
+                <label for="old-pass">รหัสผ่านปัจจุบัน</label>
+                <input type="password" id="old-pass" name="currentPassword" required>
+            </div>
                 <div class="form-group">
                     <label for="new-pass">รหัสผ่านใหม่</label>
                     <input type="password" id="new-pass" name="newPassword" required>
@@ -253,7 +259,7 @@
                     <input type="password" id="confirm-pass" name="confirmPassword" required>
                 </div>
                 <button type="submit" class="save-btn">เปลี่ยนรหัสผ่าน</button>
-            </form>
+                <div id="passwordMessageArea" class="message-area"></div> </form>
         </div>
 
         <hr style="margin: 40px 0; border: 0; height: 1px; background: #ddd;">
@@ -263,8 +269,8 @@
             <div class="status-card">
                 <p><strong>สถานะบัญชี:</strong> <span class="status-badge active">ACTIVE</span></p>
                 <p><strong>แผนบริการปัจจุบัน:</strong> <span class="status-badge free">Free Tier</span></p>
-                <p><strong>วันที่สร้างบัญชี:</strong> 2025-01-10</p>
-                <p><strong>เซิร์ฟเวอร์ฟรีคงเหลือ:</strong> 1 / 1 เครื่อง</p>
+                <p><strong>วันที่สร้างบัญชี:</strong> <span id="accountCreatedAt">2025-01-10</span></p>
+                <p><strong>เซิร์ฟเวอร์ฟรีคงเหลือ:</strong> <span id="freeServersRemaining">1</span> / 1 เครื่อง</p>
 
                 <button class="save-btn" style="background-color: #3498db; margin-top: 15px;">อัปเกรดเป็น Premium</button>
             </div>
@@ -277,5 +283,134 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ใช้ URL เดียวกันกับที่กำหนดใน AccountController.java
+        const API_BASE_URL = '/api/v1/account';
+
+        // ----------------------------------------------------------------------
+        // 1. ฟังก์ชันช่วยเหลือ: แสดงข้อความแจ้งเตือน
+        // ----------------------------------------------------------------------
+        function displayMessage(areaId, message, isSuccess) {
+            const messageArea = document.getElementById(areaId);
+            messageArea.textContent = message;
+            messageArea.style.color = isSuccess ? 'green' : 'red';
+            setTimeout(() => messageArea.textContent = '', 5000); // ซ่อนหลังจาก 5 วินาที
+        }
+
+        // ----------------------------------------------------------------------
+        // 2. ดึงข้อมูล Profile มาแสดงในฟอร์ม (GET /api/v1/account/profile)
+        // ----------------------------------------------------------------------
+        function fetchProfile() {
+            fetch(`${API_BASE_URL}/profile`)
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = '/login.html'; // หากไม่มีสิทธิ์ ให้ไปหน้า Login
+                        return null;
+                    }
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch profile data.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data) {
+                        // เติมข้อมูลในฟอร์ม
+                        document.getElementById('fname').value = data.firstName || '';
+                        document.getElementById('lname').value = data.lastName || '';
+                        document.getElementById('email').value = data.email || '';
+
+                        // คุณสามารถอัปเดตข้อมูลสถานะอื่นๆ ได้จาก 'data' ถ้า Backend ส่งมา
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching profile:', error);
+                    displayMessage('profileMessageArea', 'ไม่สามารถโหลดข้อมูลบัญชีได้', false);
+                });
+        }
+
+        // ----------------------------------------------------------------------
+        // 3. จัดการ Submit Form ข้อมูลส่วนตัว (PUT /api/v1/account/profile)
+        // ----------------------------------------------------------------------
+        const profileForm = document.getElementById('profileForm');
+
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = document.getElementById('fname').value;
+            const lastName = document.getElementById('lname').value;
+
+            const updatedData = {
+                firstName: firstName,
+                lastName: lastName
+            };
+
+            fetch(`${API_BASE_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData)
+            })
+                .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                .then(result => {
+                    if (result.status === 200) {
+                        displayMessage('profileMessageArea', result.body.message || 'บันทึกข้อมูลสำเร็จ', true);
+                    } else {
+                        displayMessage('profileMessageArea', result.body.message || 'บันทึกข้อมูลล้มเหลว', false);
+                    }
+                })
+                .catch(error => {
+                    displayMessage('profileMessageArea', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', false);
+                    console.error('Error updating profile:', error);
+                });
+        });
+
+        // ----------------------------------------------------------------------
+        // 4. จัดการ Submit Form เปลี่ยนรหัสผ่าน (PUT /api/v1/account/password)
+        // ----------------------------------------------------------------------
+        const passwordForm = document.getElementById('passwordForm');
+
+        passwordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('old-pass').value;
+            const newPassword = document.getElementById('new-pass').value;
+            const confirmPassword = document.getElementById('confirm-pass').value;
+
+            if (newPassword !== confirmPassword) {
+                displayMessage('passwordMessageArea', 'รหัสผ่านใหม่ไม่ตรงกัน', false);
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                })
+            })
+                .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                .then(result => {
+                    if (result.status === 200) {
+                        displayMessage('passwordMessageArea', result.body.message || 'เปลี่ยนรหัสผ่านสำเร็จ', true);
+                        passwordForm.reset(); // เคลียร์ฟอร์ม
+                    } else {
+                        displayMessage('passwordMessageArea', result.body.message || 'เปลี่ยนรหัสผ่านล้มเหลว', false);
+                    }
+                })
+                .catch(error => {
+                    displayMessage('passwordMessageArea', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', false);
+                    console.error('Error updating password:', error);
+                });
+        });
+
+        // เริ่มดึงข้อมูลเมื่อโหลดหน้าเว็บ
+        fetchProfile();
+    });
+</script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eazy Hosting - จัดการ Server: My-Web-Project</title>
     <style>
-        /* Base Styles */
+        /* ... (CSS เดิมของคุณ) ... */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -91,6 +91,11 @@
             background-color: #e74c3c;
         }
 
+        .status-provisioning {
+            background-color: #f39c12;
+        }
+
+
         /* Grid Layout */
         .management-grid {
             display: grid;
@@ -158,6 +163,11 @@
             transition: background-color 0.3s;
         }
 
+        .action-btn:disabled {
+            background-color: #ccc !important;
+            cursor: not-allowed;
+        }
+
         .btn-start { background-color: #2ecc71; }
         .btn-start:hover { background-color: #27ae60; }
 
@@ -209,9 +219,9 @@
             transition: width 0.5s;
         }
 
-        .cpu-fill { width: 45%; background-color: #3498db; }
-        .ram-fill { width: 68%; background-color: #e74c3c; }
-        .storage-fill { width: 85%; background-color: #f39c12; }
+        .cpu-fill { background-color: #3498db; }
+        .ram-fill { background-color: #9b59b6; }
+        .storage-fill { background-color: #f39c12; }
 
         /* Console/Activity Log */
         .console-log {
@@ -229,6 +239,23 @@
             font-size: 0.9em;
         }
 
+        .message-container {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
     </style>
 </head>
 <body>
@@ -243,13 +270,14 @@
 </header>
 
 <div class="main-content">
+    <div id="message-display" class="message-container" style="display: none;"></div>
 
     <div class="server-status-header">
         <div>
-            <h1>⚙️ จัดการ Server: My-Web-Project</h1>
-            <p style="color: #777;">รหัส Server: SV-65011211097</p>
+            <h1 id="server-name">⚙️ จัดการ Server: Loading...</h1>
+            <p style="color: #777;">รหัส Server: <strong id="server-code">SV-XXXXX</strong></p>
         </div>
-        <span class="status-badge status-running">RUNNING</span>
+        <span id="status-badge" class="status-badge status-provisioning">LOADING...</span>
     </div>
 
     <div class="management-grid">
@@ -259,23 +287,23 @@
             <ul class="info-list">
                 <li>
                     <span>IP Address:</span>
-                    <strong>103.20.10.150</strong>
+                    <strong id="info-ip">103.20.10.0</strong>
                 </li>
                 <li>
                     <span>ระบบปฏิบัติการ:</span>
-                    <strong>Ubuntu 22.04 LTS</strong>
+                    <strong id="info-os">Loading...</strong>
                 </li>
                 <li>
                     <span>ทรัพยากร:</span>
-                    <strong>Free Tier (1C / 1G RAM / 10G SSD)</strong>
+                    <strong id="info-resources">Loading...</strong>
                 </li>
                 <li>
                     <span>วันสร้าง:</span>
-                    <strong>2025-10-01</strong>
+                    <strong id="info-created">Loading...</strong>
                 </li>
                 <li>
                     <span>หมดอายุ:</span>
-                    <strong style="color: #e74c3c;">2025-10-31 (เหลือ 14 วัน)</strong>
+                    <strong id="info-expires">Loading...</strong>
                 </li>
                 <li>
                     <span>Username SSH:</span>
@@ -290,13 +318,13 @@
 
         <div class="control-panel">
             <h3>แผงควบคุมหลัก</h3>
-            <a href="#" class="action-btn btn-restart">รีสตาร์ท (Restart)</a>
-            <a href="#" class="action-btn btn-stop">หยุด (Stop)</a>
-            <a href="#" class="action-btn btn-start" style="display: none;">เริ่ม (Start)</a>
+            <button data-action="restart" class="action-btn btn-restart" id="btn-restart" disabled>รีสตาร์ท (Restart)</button>
+            <button data-action="stop" class="action-btn btn-stop" id="btn-stop" disabled>หยุด (Stop)</button>
+            <button data-action="start" class="action-btn btn-start" id="btn-start" disabled>เริ่ม (Start)</button>
 
             <hr style="border: 0; height: 1px; background: #ddd; margin: 15px 0;">
 
-            <a href="#" class="action-btn btn-reinstall">ติดตั้ง OS ใหม่ (Reinstall)</a>
+            <button data-action="reinstall" class="action-btn btn-reinstall" id="btn-reinstall" disabled>ติดตั้ง OS ใหม่ (Reinstall)</button>
             <p style="font-size: 0.8em; text-align: center; color: #777;">* การ Reinstall จะลบข้อมูลทั้งหมด</p>
         </div>
     </div>
@@ -309,27 +337,27 @@
         <div class="management-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
 
             <div class="metric-card">
-                <h4>CPU Usage (1 Core)</h4>
+                <h4>CPU Usage (<span id="cpu-core-count">1</span> Core)</h4>
                 <div class="progress-bar">
-                    <div class="progress-fill cpu-fill">45%</div>
+                    <div id="cpu-fill" class="progress-fill cpu-fill" style="width: 0%;">0%</div>
                 </div>
-                <p style="font-size: 0.9em; color: #555;">ค่าเฉลี่ย 5 นาที: 45.75%</p>
+                <p style="font-size: 0.9em; color: #555;">ค่าล่าสุด: <span id="cpu-latest">0%</span></p>
             </div>
 
             <div class="metric-card">
-                <h4>RAM Usage (1 GB)</h4>
+                <h4>RAM Usage (<span id="ram-total">1</span> GB)</h4>
                 <div class="progress-bar">
-                    <div class="progress-fill ram-fill" style="background-color: #9b59b6;">68%</div>
+                    <div id="ram-fill" class="progress-fill ram-fill" style="width: 0%;">0%</div>
                 </div>
-                <p style="font-size: 0.9em; color: #555;">ใช้ไป: 696 MB / 1024 MB</p>
+                <p style="font-size: 0.9em; color: #555;">ใช้ไป: <span id="ram-used">0</span> MB / <span id="ram-total-mb">1024</span> MB</p>
             </div>
 
             <div class="metric-card">
-                <h4>Storage Usage (10 GB)</h4>
+                <h4>Storage Usage (<span id="storage-total">10</span> GB)</h4>
                 <div class="progress-bar">
-                    <div class="progress-fill storage-fill">85%</div>
+                    <div id="storage-fill" class="progress-fill storage-fill" style="width: 0%;">0%</div>
                 </div>
-                <p style="font-size: 0.9em; color: #555;">ใช้ไป: 8.5 GB / 10 GB</p>
+                <p style="font-size: 0.9em; color: #555;">ใช้ไป: <span id="storage-used">0</span> GB / <span id="storage-total-gb">10</span> GB</p>
             </div>
         </div>
     </div>
@@ -338,16 +366,273 @@
 
     <div class="console-log">
         <h3>📄 Activity Log / Console</h3>
-        <div class="console-box">
-            <p>[2025-10-17 14:05:01] <span style="color: #fff;">SYSTEM</span>: Server status changed to RUNNING.</p>
-            <p>[2025-10-17 14:04:55] <span style="color: #fff;">USER</span>: Requesting server start action.</p>
-            <p>[2025-10-16 23:00:00] <span style="color: #e67e22;">TASK</span>: Automatic Free Tier renewal check initiated.</p>
-            <p>[2025-10-16 10:20:15] <span style="color: #fff;">SYSTEM</span>: High CPU usage detected (98%), throttling engaged.</p>
-            <p>[2025-10-01 10:00:00] <span style="color: #3498db;">SETUP</span>: Server creation successfully completed. IP assigned.</p>
+        <div id="console-box" class="console-box">
+            <p>Loading server data...</p>
         </div>
     </div>
 
 </div>
+
+<script>
+    // *******************************************************************
+    // 1. CONFIGURATION
+    // *******************************************************************
+    // !!! สำคัญ: ต้องเปลี่ยน SERVER_ID ให้ตรงกับ Server ID ที่คุณต้องการทดสอบ !!!
+    const SERVER_ID = 14;
+
+    // !!! ตรวจสอบ Base URL !!!
+    const BASE_URL = 'http://localhost:3100/api/v1/';
+
+    // API Endpoints
+    const GET_SERVER_API = `${BASE_URL}servers/server/${SERVER_ID}`;
+    const MOCK_CONTROL_API = `${BASE_URL}servers/MockControl/${SERVER_ID}/action?action=`;
+
+    // *******************************************************************
+    // 2. HELPER FUNCTIONS
+    // *******************************************************************
+
+    /**
+     * แสดงข้อความแจ้งเตือนที่ด้านบน
+     * @param {string} message
+     * @param {'success' | 'error'} type
+     */
+    function displayMessage(message, type) {
+        const container = document.getElementById('message-display');
+        container.textContent = message;
+        container.className = `message-container message-${type}`;
+        container.style.display = 'block';
+
+        // ซ่อนข้อความอัตโนมัติหลังจาก 5 วินาที
+        setTimeout(() => {
+            container.style.display = 'none';
+        }, 5000);
+    }
+
+    /**
+     * อัปเดตสถานะของปุ่มควบคุมตามสถานะปัจจุบันของ Server
+     * @param {string} status - สถานะปัจจุบันของ Server (e.g., "Running", "Stopped")
+     */
+    function updateControlButtons(status) {
+        const isRunning = status === 'Running';
+        const isStopped = status === 'Stopped';
+        const isBusy = status === 'Provisioning' || status === 'Creating' || status === 'Restarting';
+
+        document.getElementById('btn-start').disabled = isRunning || isBusy;
+        document.getElementById('btn-stop').disabled = isStopped || isBusy;
+        document.getElementById('btn-restart').disabled = !isRunning || isBusy;
+        document.getElementById('btn-reinstall').disabled = isBusy;
+
+        // ซ่อน/แสดงปุ่ม Start/Stop ตามความเหมาะสม
+        document.getElementById('btn-start').style.display = isStopped ? 'block' : 'none';
+        document.getElementById('btn-stop').style.display = isRunning ? 'block' : 'none';
+    }
+
+    /**
+     * อัปเดต Badge สถานะบน Header
+     * @param {string} status
+     */
+    function updateStatusBadge(status) {
+        const badge = document.getElementById('status-badge');
+        badge.textContent = status.toUpperCase();
+
+        badge.classList.remove('status-running', 'status-stopped', 'status-provisioning');
+
+        if (status === 'Running') {
+            badge.classList.add('status-running');
+        } else if (status === 'Stopped') {
+            badge.classList.add('status-stopped');
+        } else {
+            badge.classList.add('status-provisioning'); // ใช้สำหรับ Provisioning, Creating, Restarting
+        }
+    }
+
+    // *******************************************************************
+    // 3. DATA FETCHING & UI UPDATE
+    // *******************************************************************
+
+    /**
+     * ดึงข้อมูล Server หลักและอัปเดต UI Info Card
+     */
+    async function fetchServerDetails() {
+        try {
+            const response = await fetch(GET_SERVER_API);
+            if (!response.ok) {
+                // หาก API ส่ง Error (เช่น 404, 500)
+                const errorData = await response.json();
+                displayMessage(`Error ${response.status}: ${errorData.message || 'ไม่พบเซิร์ฟเวอร์ หรือเกิดข้อผิดพลาด'}`, 'error');
+                return null;
+            }
+
+            const server = await response.json();
+
+            // 1. อัปเดต Header
+            document.getElementById('server-name').textContent = `⚙️ จัดการ Server: ${server.serverName}`;
+            document.getElementById('server-code').textContent = server.uniqueServerCode;
+            updateStatusBadge(server.status);
+            updateControlButtons(server.status);
+
+            // 2. อัปเดต Info Card
+            document.getElementById('info-ip').textContent = server.ipAddress || 'N/A';
+            document.getElementById('info-os').textContent = server.operatingSystem || 'N/A';
+            document.getElementById('info-created').textContent = server.createdAt ? new Date(server.createdAt).toLocaleDateString('th-TH') : 'N/A';
+            document.getElementById('info-expires').textContent = server.expiresAt ? new Date(server.expiresAt).toLocaleDateString('th-TH') : 'N/A';
+            document.getElementById('info-resources').textContent = `${server.tier} (${server.cpuCores}C / ${server.ramGB}G RAM / ${server.storageGB}G SSD)`;
+
+            // 3. อัปเดต Total Resources (สำหรับ Usage Section)
+            document.getElementById('cpu-core-count').textContent = `${server.cpuCores}`;
+            document.getElementById('ram-total').textContent = `${server.ramGB}`;
+            document.getElementById('ram-total-mb').textContent = `${server.ramGB * 1024}`;
+            document.getElementById('storage-total').textContent = `${server.storageGB}`;
+            document.getElementById('storage-total-gb').textContent = `${server.storageGB}`;
+
+
+            return server;
+        } catch (error) {
+            console.error('Fetch Server Details Error:', error);
+            displayMessage('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เพื่อดึงข้อมูลได้', 'error');
+            return null;
+        }
+    }
+
+    /**
+     * ดึงข้อมูล Usage ล่าสุดและอัปเดต Progress Bar
+     * (ฟังก์ชันนี้ควรถูกเรียกซ้ำๆ เพื่อจำลอง Real-time)
+     */
+    async function fetchAndUpdateUsage() {
+        // !!! หาก API สำหรับดึง Usage ล่าสุดยังไม่มี เราจะใช้ Mock Data แทน !!!
+
+        // Mock: สร้างค่าสุ่มเพื่อให้ดูเหมือนมีการเปลี่ยนแปลง
+        const cpuLatest = Math.floor(Math.random() * 80) + 10; // 10% - 90%
+        const ramTotalMB = parseInt(document.getElementById('ram-total-mb').textContent) || 1024;
+        const ramUsedMB = Math.floor(ramTotalMB * (Math.random() * 0.5 + 0.3)); // 30% - 80%
+        const ramPercent = Math.round((ramUsedMB / ramTotalMB) * 100);
+
+        const storageTotalGB = parseInt(document.getElementById('storage-total-gb').textContent) || 10;
+        const storageUsedGB = (storageTotalGB * (Math.random() * 0.1 + 0.7)).toFixed(1); // 70% - 80%
+        const storagePercent = Math.round((storageUsedGB / storageTotalGB) * 100);
+
+
+        // CPU
+        document.getElementById('cpu-latest').textContent = `${cpuLatest}%`;
+        document.getElementById('cpu-fill').style.width = `${cpuLatest}%`;
+        document.getElementById('cpu-fill').textContent = `${cpuLatest}%`;
+
+        // RAM
+        document.getElementById('ram-used').textContent = `${ramUsedMB}`;
+        document.getElementById('ram-fill').style.width = `${ramPercent}%`;
+        document.getElementById('ram-fill').textContent = `${ramPercent}%`;
+
+        // Storage
+        document.getElementById('storage-used').textContent = `${storageUsedGB}`;
+        document.getElementById('storage-fill').style.width = `${storagePercent}%`;
+        document.getElementById('storage-fill').textContent = `${storagePercent}%`;
+
+        // อัปเดต Log (จำลอง)
+        const now = new Date();
+        const timeString = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        const logEntry = `<p>[${timeString}] <span style="color: #fff;">SYSTEM</span>: Resources updated. CPU: ${cpuLatest}%</p>`;
+
+        const consoleBox = document.getElementById('console-box');
+        consoleBox.insertAdjacentHTML('afterbegin', logEntry);
+        // จำกัดจำนวน Log
+        while (consoleBox.children.length > 10) {
+            consoleBox.removeChild(consoleBox.lastChild);
+        }
+    }
+
+
+    // *******************************************************************
+    // 4. CONTROL ACTION HANDLER (Start/Stop/Restart)
+    // *******************************************************************
+
+    /**
+     * จัดการการกดปุ่ม Start, Stop, Restart
+     * @param {string} action - 'start', 'stop', หรือ 'restart'
+     */
+    async function handleControlAction(action) {
+        // 1. ถามการยืนยัน
+        if (!confirm(`คุณแน่ใจหรือไม่ที่จะดำเนินการ ${action.toUpperCase()} Server?`)) {
+            return;
+        }
+
+        const btnId = `btn-${action}`;
+        const originalText = document.getElementById(btnId).textContent;
+
+        // 2. เตรียม UI (Disable ปุ่มทั้งหมด)
+        document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = true);
+        document.getElementById(btnId).textContent = `กำลังส่งคำสั่ง ${action.toUpperCase()}...`;
+        displayMessage(`กำลังส่งคำสั่ง ${action.toUpperCase()}... กรุณารอสักครู่`, 'info');
+        updateStatusBadge(action.charAt(0).toUpperCase() + action.slice(1) + 'ing'); // e.g., "Starting"
+
+        // 3. ส่ง Request ไปยัง Backend
+        try {
+            const response = await fetch(MOCK_CONTROL_API + action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // หากมีการใช้ Token ในการตรวจสอบสิทธิ์ ต้องเพิ่มที่นี่
+                    // 'Authorization': 'Bearer YOUR_TOKEN'
+                }
+            });
+
+            const data = await response.json();
+
+            // 4. จัดการ Response
+            if (response.ok) {
+                displayMessage(data.message || `ดำเนินการ ${action.toUpperCase()} สำเร็จ`, 'success');
+                // อัปเดต Log ทันที
+                const logEntry = `<p>[${new Date().toLocaleTimeString('th-TH')}] <span style="color: #fff;">USER</span>: Server ${action.toUpperCase()} requested. Status: ${data.status}</p>`;
+                document.getElementById('console-box').insertAdjacentHTML('afterbegin', logEntry);
+
+            } else {
+                displayMessage(data.message || `เกิดข้อผิดพลาดในการ ${action.toUpperCase()} Server`, 'error');
+            }
+
+            // 5. รีเฟรชสถานะ Server หลังจากการดำเนินการ
+            await fetchServerDetails();
+
+        } catch (error) {
+            console.error('Control Action Error:', error);
+            displayMessage('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เพื่อส่งคำสั่งควบคุมได้', 'error');
+        } finally {
+            // 6. คืนค่าปุ่ม
+            document.getElementById(btnId).textContent = originalText;
+            document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
+            // เรียก updateControlButtons อีกครั้งเพื่อตั้งสถานะปุ่มตามสถานะล่าสุด
+            const currentStatus = document.getElementById('status-badge').textContent.toLowerCase();
+            updateControlButtons(currentStatus);
+        }
+    }
+
+
+    // *******************************************************************
+    // 5. INITIALIZATION
+    // *******************************************************************
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // A. โหลดข้อมูล Server หลักเมื่อหน้าเว็บโหลด
+        fetchServerDetails();
+
+        // B. เริ่มต้นการอัปเดต Usage (จำลอง Real-time)
+        // ดึงข้อมูลครั้งแรก
+        fetchAndUpdateUsage();
+        // ตั้งเวลาดึงข้อมูลซ้ำทุก 5 วินาที
+        setInterval(fetchAndUpdateUsage, 5000);
+
+        // C. ผูก Event Listener กับปุ่มควบคุม
+        document.getElementById('btn-start').addEventListener('click', () => handleControlAction('start'));
+        document.getElementById('btn-stop').addEventListener('click', () => handleControlAction('stop'));
+        document.getElementById('btn-restart').addEventListener('click', () => handleControlAction('restart'));
+
+        // Reinstall
+        document.getElementById('btn-reinstall').addEventListener('click', () => {
+            if (confirm("การติดตั้ง OS ใหม่จะลบข้อมูลทั้งหมดใน Server คุณแน่ใจหรือไม่?")) {
+                handleControlAction('reinstall');
+            }
+        });
+    });
+
+</script>
 
 </body>
 </html>
